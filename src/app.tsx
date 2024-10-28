@@ -1,6 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
 import "./app.css";
-import "@picocss/pico";
 import { FunctionalComponent } from "preact";
 
 type SkillData = {
