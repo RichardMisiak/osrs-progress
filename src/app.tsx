@@ -26,6 +26,13 @@ export function App() {
     setFetching(true);
     setData(null);
     setError(null);
+
+    // store the user in the query string
+    // pushstate does this without a page reload
+    const url = new URL(window.location.href);
+    url.searchParams.set("user", user.trim());
+    window.history.pushState(null, "", url.toString());
+
     const response = await fetch(
       `https://corsproxy.io/?https://secure.runescape.com/m=hiscore_oldschool/index_lite.json?player=${user.trim()}`
     );
@@ -39,6 +46,7 @@ export function App() {
   };
 
   useEffect(() => {
+    // read the user from the query string on first load
     const params = new URLSearchParams(location.search);
     const user = params.get("user");
     if (user) {
@@ -48,7 +56,14 @@ export function App() {
   }, []);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+        width: "100%",
+      }}
+    >
       <div
         style={{
           display: "flex",
@@ -142,7 +157,7 @@ const Results: FunctionalComponent<{ data: StatsResponse }> = ({ data }) => {
   return (
     <>
       <div>Overall percent: {overall}% </div>
-      <table>
+      <table style={{ overflowX: "auto", width: "100vw" }}>
         <thead>
           <tr>
             {headers.map((h) => (
@@ -156,7 +171,6 @@ const Results: FunctionalComponent<{ data: StatsResponse }> = ({ data }) => {
                     display: "flex",
                     flexDirection: "row",
                     gap: "8px",
-                    minWidth: "15ch",
                   }}
                 >
                   <div>{h}</div>
