@@ -2,6 +2,10 @@ import { useEffect, useState } from "preact/hooks";
 import "./app.css";
 import { FunctionalComponent } from "preact";
 
+const baseUrl =
+  import.meta.env.VITE_API_URL ??
+  "https://osrs-stats.richard-h-misiak.workers.dev";
+
 type SkillData = {
   id: number;
   name: string;
@@ -27,15 +31,12 @@ export function App() {
     setData(null);
     setError(null);
 
-    // store the user in the query string
-    // pushstate does this without a page reload
+    // pushState does this without a page reload
     const url = new URL(window.location.href);
     url.searchParams.set("user", user.trim());
     window.history.pushState(null, "", url.toString());
 
-    const response = await fetch(
-      `https://osrs-stats.richard-h-misiak.workers.dev/?user=${user.trim()}`
-    );
+    const response = await fetch(`${baseUrl}?user=${user.trim()}`);
     if (response.status === 200) {
       const json: StatsResponse = await response.json();
       setData(json);
@@ -77,16 +78,19 @@ export function App() {
         <input
           style={{ marginBottom: 0 }}
           type="text"
+          disabled={fetching}
           value={username}
           onInput={(e) => setUsername((e.target as HTMLInputElement).value)}
           onKeyDown={(e) => {
-            if (e.key == "Enter") {
+            if (e.key === "Enter") {
               getData(username);
             }
           }}
           placeholder="Enter a username"
         ></input>
-        <button onClick={() => getData(username)}>Search</button>
+        <button disabled={fetching} onClick={() => getData(username)}>
+          Search
+        </button>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         {fetching && <div>Loading</div>}
@@ -113,41 +117,38 @@ const Results: FunctionalComponent<{ data: StatsResponse }> = ({ data }) => {
     }
   };
 
-  const skills = data!.skills.filter((x) => x.name !== "Overall");
+  const skills = data.skills.filter((x) => x.name !== "Overall");
+
   const headers = [
     ...Object.keys(skills[0]).filter((x) => x !== "id"),
     "percent",
   ];
 
   const maxXp = 13034431;
+
   const withPercent: SkillDataWithPercent[] = skills
     .map((x) => ({
       ...x,
       percentRaw: (100 * Math.min(x.xp, maxXp)) / maxXp,
       percent: Math.round((10 * (100 * Math.min(x.xp, maxXp))) / maxXp) / 10,
     }))
-    .sort(
-      (
-        a: Record<string, string | number>,
-        b: Record<string, string | number>
-      ) => {
-        if (!(sortDirection && sortHeader)) {
-          return 0;
-        }
-        const v1: string | number = a[sortHeader];
-        const v2: string | number = b[sortHeader];
-
-        if (typeof v1 === "string" && typeof v2 === "string") {
-          return sortDirection === "asc"
-            ? v1.localeCompare(v2)
-            : v2.localeCompare(v1);
-        } else {
-          return sortDirection === "asc"
-            ? (v1 as number) - (v2 as number)
-            : (v2 as number) - (v1 as number);
-        }
+    .sort((a: Record<string, any>, b: Record<string, any>) => {
+      if (!(sortDirection && sortHeader)) {
+        return 0;
       }
-    );
+
+      if (typeof a[sortHeader] === "string") {
+        const v1: string = a[sortHeader];
+        const v2: string = b[sortHeader];
+        return sortDirection === "asc"
+          ? v1.localeCompare(v2)
+          : v2.localeCompare(v1);
+      } else {
+        const v1: number = a[sortHeader];
+        const v2: number = b[sortHeader];
+        return sortDirection === "asc" ? v1 - v2 : v2 - v1;
+      }
+    });
 
   const overallRaw =
     withPercent.reduce((acc, next) => (acc += next.percentRaw), 0) /
@@ -176,8 +177,8 @@ const Results: FunctionalComponent<{ data: StatsResponse }> = ({ data }) => {
                 >
                   <div>{h}</div>
                   <div>
-                    {sortDirection == "asc" && sortHeader === h && "↑"}
-                    {sortDirection == "desc" && sortHeader === h && "↓"}
+                    {sortDirection === "asc" && sortHeader === h && "↑"}
+                    {sortDirection === "desc" && sortHeader === h && "↓"}
                   </div>
                 </div>
               </th>
@@ -187,8 +188,25 @@ const Results: FunctionalComponent<{ data: StatsResponse }> = ({ data }) => {
         <tbody>
           {withPercent.map((s) => (
             <tr key={s.id}>
-              {headers.map((h) => (
-                <td key={h}>{(s as Record<string, any>)[h]}</td>
+              {headers.map((h, i) => (
+                <td key={h}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: "8px",
+                      alignItems: "center",
+                      justifyContent: "flex-start",
+                    }}
+                  >
+                    {i === 0 && <img src={`${baseUrl}?skill=${s[h]}`}></img>}
+                    {h === "rank" && (s as Record<string, any>)[h] === -1 ? (
+                      <em style={{ opacity: "50%" }}>unranked</em>
+                    ) : (
+                      (s as Record<string, any>)[h]
+                    )}
+                  </div>
+                </td>
               ))}
             </tr>
           ))}
