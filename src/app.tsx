@@ -34,7 +34,7 @@ export function App() {
     window.history.pushState(null, "", url.toString());
 
     const response = await fetch(
-      `https://corsproxy.io/?https://secure.runescape.com/m=hiscore_oldschool/index_lite.json?player=${user.trim()}`
+      `https://osrs-stats.richard-h-misiak.workers.dev/?user=${user.trim()}`
     );
     if (response.status === 200) {
       const json: StatsResponse = await response.json();
@@ -64,6 +64,7 @@ export function App() {
         width: "100%",
       }}
     >
+      <h2>OSRS progress to max level</h2>
       <div
         style={{
           display: "flex",
@@ -156,7 +157,7 @@ const Results: FunctionalComponent<{ data: StatsResponse }> = ({ data }) => {
 
   return (
     <>
-      <div>Overall percent: {overall}% </div>
+      <div>Overall percent to max: {overall}% </div>
       <table>
         <thead>
           <tr>
