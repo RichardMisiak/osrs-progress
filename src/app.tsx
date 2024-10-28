@@ -157,7 +157,7 @@ const Results: FunctionalComponent<{ data: StatsResponse }> = ({ data }) => {
   return (
     <>
       <div>Overall percent: {overall}% </div>
-      <table style={{ overflowX: "auto", width: "100vw" }}>
+      <table>
         <thead>
           <tr>
             {headers.map((h) => (
