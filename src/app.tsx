@@ -12,7 +12,7 @@ type SkillData = {
   rank: number;
   level: number;
   xp: number;
-};
+} & Record<string, any>;
 
 type SkillDataWithPercent = SkillData & { percent: number; percentRaw: number };
 
@@ -200,10 +200,10 @@ const Results: FunctionalComponent<{ data: StatsResponse }> = ({ data }) => {
                     }}
                   >
                     {i === 0 && <img src={`${baseUrl}?skill=${s[h]}`}></img>}
-                    {h === "rank" && (s as Record<string, any>)[h] === -1 ? (
+                    {h === "rank" && s[h] === -1 ? (
                       <em style={{ opacity: "50%" }}>unranked</em>
                     ) : (
-                      (s as Record<string, any>)[h]
+                      s[h]
                     )}
                   </div>
                 </td>
