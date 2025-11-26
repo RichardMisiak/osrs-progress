@@ -50,8 +50,9 @@ export const Results: FunctionalComponent<{ data: StatsResponse }> = ({
   };
 
   const skills = data.skills.filter((x) => x.name !== "Overall");
+  const overallSkill = data.skills.find((x) => x.name === "Overall");
 
-  const maxXp = 13034431;
+  const maxXp = 13_034_431;
 
   const withPercent: FormattedSkillData[] = skills
     .map((x) => ({
@@ -88,6 +89,17 @@ export const Results: FunctionalComponent<{ data: StatsResponse }> = ({
   return (
     <>
       <div>Overall percent to all 99s: {overallRoundex}% </div>
+      <div
+        style={{
+          display: "flex",
+          gap: "16px",
+          flexDirection: "row",
+          justifyContent: "center",
+        }}
+      >
+        <div>Total level: {overallSkill?.level}</div>
+        <div>Rank: {numberFormatter(overallSkill?.rank)}</div>
+      </div>
       <table>
         <thead>
           <tr>
