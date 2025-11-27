@@ -89,17 +89,19 @@ export const Results: FunctionalComponent<{ data: StatsResponse }> = ({
   return (
     <>
       <div>Overall percent to all 99s: {overallRoundex}% </div>
-      <div
-        style={{
-          display: "flex",
-          gap: "16px",
-          flexDirection: "row",
-          justifyContent: "center",
-        }}
-      >
-        <div>Total level: {overallSkill?.level}</div>
-        <div>Rank: {numberFormatter(overallSkill?.rank)}</div>
-      </div>
+      {overallSkill && (
+        <div
+          style={{
+            display: "flex",
+            gap: "16px",
+            flexDirection: "row",
+            justifyContent: "center",
+          }}
+        >
+          <div>Total level: {overallSkill.level}</div>
+          <div>Rank: {numberFormatter(overallSkill.rank)}</div>
+        </div>
+      )}
       <table>
         <thead>
           <tr>
